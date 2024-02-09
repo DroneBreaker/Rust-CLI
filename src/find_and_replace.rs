@@ -31,7 +31,16 @@ fn read_and_write(args: &Arguments) {
         }
     };
 
-    match fs::write(&args.output_file, &data) {
+    let replace_data = match replace(&args.pattern, &args.replace, &data) {
+        Ok(d) => d,
+        Err(e) => {
+            eprintln!("{} Failed to replace text: {:?}", "Error".red().bold(), e);
+            std::process::exit(1);
+        }
+    };
+
+
+    match fs::write(&args.output_file, &replace_data) {
         Ok(_) => {},
         Err(e) => {
             eprintln!("{} Failed to read from file {}: {:?}", "Error".red().bold(), args.input_file, e);
@@ -39,6 +48,7 @@ fn read_and_write(args: &Arguments) {
         }
     }
 }
+
 
 fn parse_args() -> Arguments {
     let args: Vec<String> = env::args().skip(1).collect();
